@@ -15,16 +15,16 @@ pipeline {
 
         stage('Maven Build') {
             steps {
-                bat 'mvn -v'
-                bat 'mvn clean package -DskipTests'
+                sh 'mvn -v'
+                sh 'mvn clean package -DskipTests'
             }
         }
 
         stage('Docker Build') {
             steps {
-                bat 'docker --version'
-                bat "docker build -t %IMAGE%:%BUILD_NUMBER% ."
-                bat "docker tag %IMAGE%:%BUILD_NUMBER% %IMAGE%:latest"
+                sh 'docker --version'
+                sh "docker build -t ${IMAGE}:${BUILD_NUMBER} ."
+                sh "docker tag ${IMAGE}:${BUILD_NUMBER} ${IMAGE}:latest"
             }
         }
     }
