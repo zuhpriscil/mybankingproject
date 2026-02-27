@@ -1,29 +1,31 @@
 pipeline {
-  agent any
+    agent any
 
-  environment {
-    IMAGE = "zuhpriscil/mybankingproject"
-  }
-
-  stages {
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
+    environment {
+        IMAGE = "zuhpriscil/mybankingproject"
     }
 
-    stage('Maven Build') {
-      steps {
-        sh 'mvn -v || true'
-        sh 'mvn clean package -DskipTests'
-      }
-    }
+    stages {
 
-    stage('Docker Build') {
-      steps {
-        sh "docker build -t ${IMAGE}:${BUILD_NUMBER} ."
-        sh "docker tag ${IMAGE}:${BUILD_NUMBER} ${IMAGE}:latest"
-      }
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Maven Build') {
+            steps {
+                bat 'mvn -v'
+                bat 'mvn clean package -DskipTests'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                bat 'docker --version'
+                bat "docker build -t %IMAGE%:%BUILD_NUMBER% ."
+                bat "docker tag %IMAGE%:%BUILD_NUMBER% %IMAGE%:latest"
+            }
+        }
     }
-  }
 }
