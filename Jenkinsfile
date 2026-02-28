@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "zuhrpsicl/mybankingproject"
-        DOCKER_TAG   = "${BUILD_NUMBER}"
+        DOCKER_IMAGE = "zuhpriscil/mybankingproject"
+        DOCKER_TAG = "${BUILD_NUMBER}"
     }
 
     stages {
@@ -14,24 +14,18 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build Jar') {
             steps {
-                sh '''
-                    docker run --rm \
-                      -v "$PWD":/app \
-                      -w /app \
-                      maven:3.9.6-eclipse-temurin-17 \
-                      mvn -B clean package
-                '''
+                sh './mvnw clean package -DskipTests'
             }
         }
 
         stage('Docker Build') {
             steps {
-                sh """
+                sh '''
                     docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
                     docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
-                """
+                '''
             }
         }
 
@@ -42,14 +36,24 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    sh """
-                        echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
+                    sh '''
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
                         docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
                         docker push ${DOCKER_IMAGE}:latest
                         docker logout
-                    """
+                    '''
                 }
             }
         }
 
-
+        stage('Deploy') {
+            steps {
+                sh '''
+                    docker rm -f demo-container || true
+                    docker pull ${DOCKER_IMAGE}:${DOCKER_TAG}
+                    docker run -d --name demo-container -p 8080:8080 ${DOCKER_IMAGE}:${DOCKER_TAG}
+                '''
+            }
+        }
+    }
+}
