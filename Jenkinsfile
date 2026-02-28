@@ -52,10 +52,4 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            steps {
-                sh "ansible-playbook -i inventory.ini deploy_app.yml"
-            }
-        }
-    }
-}
+
