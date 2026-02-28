@@ -13,12 +13,12 @@ pipeline {
                 checkout scm
             }
         }
-
-        stage('Build Jar') {
-            steps {
-                sh './mvnw clean package -DskipTests'
-            }
-        }
+stage('Build Jar') {
+    steps {
+        sh 'chmod +x mvnw'
+        sh './mvnw clean package -DskipTests'
+    }
+}
 
         stage('Docker Build') {
             steps {
